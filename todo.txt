@@ -1,0 +1,11 @@
+- Use riot and spotify API
+
+- Riot API
+	- Use live client data API to get current game data
+	- Use CDragon community api to get champion lore data
+	- Use keyword extraction to extract key aspects
+	- Match aspect with suitable songs
+		- Manually associate league terms with actual words
+
+- Spotify API
+	- Find a way to find songs by keywords
