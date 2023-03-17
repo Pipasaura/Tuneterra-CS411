@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = 'rperry'  # Change this!
 
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Ardent857?'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'PUT YOURS HERE'
 app.config['MYSQL_DATABASE_DB'] = 'TuneTerra'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -48,7 +48,7 @@ def getPlaylist(region, sum_name):
     playlist = cursor.execute("SELECT playlist1, playlist2 FROM Champions WHERE champ_id = %s", (champ_id))
     return cursor.fetchall()
 
-print(getPlaylist('na1', 'InfamousTrash'))
+
     
     
 
