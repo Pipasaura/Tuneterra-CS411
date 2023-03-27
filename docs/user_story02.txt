@@ -1,0 +1,5 @@
+As a logged in user currently in a match, I would like to recieve a playlist for the champion I am currently playing.
+After navigating to the app, I will already be logged in to my TuneTerra and Spotify accounts due to a remember me feature.
+From there, I will simply click the button to generate a playlist.
+I will not need to use the app's search bar, as my summoner name and region have already been registered.
+After receiving the appropriate playlists, I can choose which to listen to in the app or through Spotify.

@@ -1,0 +1,5 @@
+As a logged in user, I would like to register my summoner name and region, to make future use of the app more convienent.
+To do so, I will navigate the profile tab of the app.
+Once there, I will select the option to register a League of Legends account.
+After entering my summoner name and region, that information will be linked to my TuneTerra account and stored in a database.
+Once registered, I will be able to skip the entry part for summoner name and region while using the app.

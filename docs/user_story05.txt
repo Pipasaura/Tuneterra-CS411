@@ -1,0 +1,6 @@
+As a not logged in user, I would like to receive a playlist based off of my favorite champion.
+To do so, I must first log in through Spotify.
+After that, I will then navigate to the search bar.
+I will select the option to search by champion, then enter the name of the champion I would like a playlist of.
+The app will then provide me with a selection of playlists based off the champion I entered.
+I will select one, then begin listening in the app through Spotify integration, or through Spotify itself.

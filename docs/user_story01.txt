@@ -1,0 +1,5 @@
+As a not logged in user currently in a match, I want to receive a playlist for the champion I am currently playing. 
+After navigating to the app, I will log in with my spotify account. 
+Then, I will navigate to the app's search bar and enter my summoner name and region.
+The app will then provide me with a selection of playlists that match the champion I am currently playing.
+I will then select one, and can listen to it on the application or through Spotify.

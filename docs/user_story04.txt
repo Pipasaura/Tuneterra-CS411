@@ -1,0 +1,5 @@
+As a logged in user not currently in a match, I would like to receive a playlist based on my recent match history.
+To do so, I will navigate to the button associated with my League of Legends account.
+As I am already logged in and registered, I will not need to log into Spotify, or enter my account information.
+After clicking the button, the app will generate a playlist based off of my recent performance in League of Legends.
+I can then begin to listen to the playlist through the app using Spotify integration or using Spotify.
