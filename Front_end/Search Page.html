@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Search Page</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #1686c7;
+        color: #ffffff;
+        font-family: Arial, sans-serif;
+      }
+      h1 {
+        text-align: center;
+        font-size: 3rem;
+        margin-bottom: 40px;
+      }
+      img {
+        display: block;
+        margin: 0 auto;
+        max-width: 100%;
+        height: auto;
+      }
+      input[type="text"] {
+        background-color: #ffffff;
+        color: #191414;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        width: 500px;
+        font-size: 1.2rem;
+        box-shadow: 2px 2px #191414;
+      }
+      select {
+        background-color: #ffffff;
+        color: #191414;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+        box-shadow: 2px 2px #191414;
+      }
+      option {
+        color: #191414;
+        font-size: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1><img src="image/Pic 1.jpg" alt="Logo" width="500" /></h1>
+    <input type="text" placeholder="Search your summoner name..." />
+    <select>
+      <option value="" selected disabled>Region</option>
+      <option value="North America">North America</option>
+      <option value="Europe Nordic & East">Europe Nordic & East</option>
+      <option value="Europe West">Europe West</option>
+      <option value="Japan">Japan</option>
+      <option value="Korea">Korea</option>
+      <option value="Latin America North">Latin America North</option>
+      <option value="Russia">Russia</option>
+      <option value="Turkey">Turkey</option>
+      <option value="Philippines">Philippines</option>
+      <option value="Thailand">Thailand</option>
+    </select>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const access_token = params.get("access_token");
+      const token_type = params.get("token_type");
+
+      if (access_token && token_type === "Bearer") {
+        // User is logged in, show search bar and list of things
+        const searchBar = document.querySelector("input[type='text']");
+        const selectList = document.querySelector("select");
+
+        searchBar.style.display = "block";
+        selectList.style.display = "block";
+      } else {
+        // User is not logged in, redirect to login page
+        const client_id = "4fe47df343244305b0c182bf3256a014";
+        const redirect_uri = "Login Page.html";
+        const scope = "user-read-private user-read-email";
+        const state = generateRandomString(16);
+
+        const url = `https://accounts.spotify.com/authorize?response_type=token&client_id=${client_id}&redirect_uri=${encodeURIComponent(
+          redirect_uri
+        )}&scope=${encodeURIComponent(scope)}&state=${state}`;
+
+        window.location = url;
+      }
+
+      function generateRandomString(length) {
+        let result = "";
+        const characters =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const charactersLength = characters.length;
+
+        for (let i = 0; i < length; i++) {
+          result += characters.charAt(
+            Math.floor(Math.random() * charactersLength)
+          );
+        }
+
+        return result;
+      }
+    </script>
+  </body>
+</html>
