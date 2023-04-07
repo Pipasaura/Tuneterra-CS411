@@ -6,7 +6,7 @@ from riotwatcher import LolWatcher
 
 mysql = MySQL()
 app = Flask(__name__)
-app.secret_key = 'rperry'  # Change this!
+app.secret_key = 'idk'  # Change this!
 
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'PUT YOURS HERE'
@@ -16,39 +16,106 @@ mysql.init_app(app)
 
 conn = mysql.connect()
 
-api_key = 'RGAPI-58a0e207-818e-4000-a22c-5bb4204bfe8a' # Must be changed daily until product is (hopefully) registered.
+api_key = ''
 
 watcher = LolWatcher(api_key, default_status_v4=True)
 
-region = 'na1' # Will need a way to dynamically change this value if we want support for other reigions.
 
-def getLiveChampId(region, sum_name):
+def getLiveChampId(region, match_info, sum_id):
     # Returns the champion ID number for a player in a live game
-    try:
-        sum_info = watcher.summoner.by_name(region, sum_name)
-    except:
-        print("Not a valid summoner name/region combo.")
-        return
-    sum_id = sum_info["id"]
-    try:
-        match_info = watcher.spectator.by_summoner(region, sum_id)
-    except:
-        print("Player not currently in game.") # Can either call function for non-live playlists, or have a check before calling this function to ensure user is in game.
-        return
     participants = match_info["participants"]
     for i in range(10):
         #Probably a cleaner way to do this
-        if (participants[i]["summonerName"] == sum_name):
-            return participants[i]["championId"]
+        if (participants[i]["summonerId"] == sum_id):
+            return str(participants[i]["championId"])
     return
 
-def getPlaylist(region, sum_name):
+def getPlaylists(region, sum_name):
     champ_id = getLiveChampId(region, sum_name)
     cursor = conn.cursor()
-    playlist = cursor.execute("SELECT playlist1, playlist2 FROM Champions WHERE champ_id = %s", (champ_id))
+    cursor.execute("SELECT playlist1, playlist2 FROM Champions WHERE champ_id = %s", (champ_id))
     return cursor.fetchall()
 
+def getMatchHistory(region, puuid):
+    history = watcher.match.matchlist_by_puuid(region, puuid, count=3) # Returns the three most recent match ids
+    match1 = watcher.match.by_id(region, history[0])
+    match2 = watcher.match.by_id(region, history[1])
+    match3 = watcher.match.by_id(region, history[2])
+    matches = [match1, match2, match3]
+    matches_wins = [False, False, False]
+    for i in range(3):
+        parts = matches[i]['info']['participants']
+        for x in parts:
+            if (x['puuid'] == puuid):
+                matches_wins[i] = x['win']
 
-    
-    
+    return matches_wins
 
+
+def getLP(region, sum_id):
+    info = watcher.league.by_summoner(region, sum_id)
+    return info[0]['leaguePoints']
+
+def getMatchHistoryInfo(region, sum_id, puuid):
+    LP = getLP(region, sum_id)
+    winLoss = getMatchHistory(region, puuid)
+    return [LP, winLoss]
+
+def getMatchHistoryKeyword(xs):
+    LP = xs[0]
+    winLoss = xs[1]
+    winStreak = [True, True, True]
+    lossStreak = [False, False, False]
+    if (winLoss == winStreak):
+        if (LP < 25):
+            return 'Triumphant'
+        else:
+            return 'Upbeat'
+    elif (winLoss == lossStreak):
+        if (LP > 75):
+            return 'Tragic'
+        else:
+            return 'Sad'
+    else:
+        if ((LP == 0) or (LP > 85)):
+            return 'Inspiring'
+        else:
+            return 'Default'
+        
+def getMatchHistoryPlaylist(region, sum_id, puuid):
+    keyword = getMatchHistoryKeyword(getMatchHistoryInfo(region, sum_id, puuid))
+    return keyword
+
+def getPlaylistID(region, sum_name):
+    try:
+        sum_info = watcher.summoner.by_name(region, sum_name)
+    except:
+        print("Not a valid summoner name/region combo!")
+        return
+    
+    sum_id = sum_info['id']
+    puuid = sum_info['puuid']
+
+    try:
+        match_info = watcher.spectator.by_summoner(region, sum_id)
+        return getLiveChampId(region, match_info, sum_id)
+    except:
+        return getMatchHistoryPlaylist(region, sum_id, puuid)
+
+def getPlaylist(keyword):
+    cursor = conn.cursor()
+    cursor.execute("SELECT playlist1, playlist2 FROM Playlists WHERE playlist_id = %s", (keyword))
+    return cursor.fetchall()
+
+def checkInGameStatus(region, sum_name):
+    try:
+        sum_info = watcher.summoner.by_name(region, sum_name)
+    except:
+        print("Not a valid summoner name/region combo!")
+        return
+    try:
+        sum_id = sum_info['id']
+        match_info = watcher.spectator.by_summoner(region, sum_id)
+    except:
+        return False
+    return True
