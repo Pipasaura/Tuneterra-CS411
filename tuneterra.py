@@ -6,17 +6,17 @@ from riotwatcher import LolWatcher
 
 mysql = MySQL()
 app = Flask(__name__)
-app.secret_key = 'idk'  # Change this!
+app.secret_key = 'rperry'  # Change this!
 
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'PUT YOURS HERE'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Ardent857?'
 app.config['MYSQL_DATABASE_DB'] = 'TuneTerra'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
 conn = mysql.connect()
 
-api_key = ''
+api_key = 'RGAPI-25f3bc6c-28d3-48b9-99c4-6f3027905415'
 
 watcher = LolWatcher(api_key, default_status_v4=True)
 
@@ -102,9 +102,10 @@ def getPlaylistID(region, sum_name):
     except:
         return getMatchHistoryPlaylist(region, sum_id, puuid)
 
-def getPlaylist(keyword):
+def getPlaylist(region, sum_name):
+    keyword = getPlaylistID(region, sum_name)
     cursor = conn.cursor()
-    cursor.execute("SELECT playlist1, playlist2 FROM Playlists WHERE playlist_id = %s", (keyword))
+    cursor.execute("SELECT playlist1 FROM Playlists WHERE playlist_id = %s", (keyword))
     return cursor.fetchall()
 
 def checkInGameStatus(region, sum_name):
@@ -119,3 +120,4 @@ def checkInGameStatus(region, sum_name):
     except:
         return False
     return True
+
