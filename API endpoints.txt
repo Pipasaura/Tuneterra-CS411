@@ -1,4 +1,12 @@
+-- Login Page Endpoints --
 POST   | /oauth_token          | Create a new user id and give it a oauth token
 PATCH  | /oauth_token/<userid> | Update the oauth token for a given user id
 GET    | /oauth_token/<userid> | Get oauth token for a given user id
 DELETE | /oauth_token/<userid> | Delete the oauth token for a given a user id
+
+-- Search Page Endpoints --
+POST   | /summoner             | Create a new summoner and pair it to a user id if valid
+GET    | /summoner/<summoner>  | Get a summoner's OAuth_token - user id pair
+DELETE | /summoner/<userid>    | Remove a summoner from a user id
+
+-- Player Page Endpoints --
