@@ -1,0 +1,4 @@
+POST   | /oauth_token          | Create a new user id and give it a oauth token
+PATCH  | /oauth_token/<userid> | Update the oauth token for a given user id
+GET    | /oauth_token/<userid> | Get oauth token for a given user id
+DELETE | /oauth_token/<userid> | Delete the oauth token for a given a user id
