@@ -5,8 +5,17 @@ GET    | /oauth_token/<userid> | Get oauth token for a given user id
 DELETE | /oauth_token/<userid> | Delete the oauth token for a given a user id
 
 -- Search Page Endpoints --
-POST   | /summoner             | Create a new summoner and pair it to a user id if valid
-GET    | /summoner/<summoner>  | Get a summoner's OAuth_token - user id pair
+POST   | /summoner/<userid>    | Create a new summoner and pair it to a user id if valid
+GET    | /summoner/<summoner>  | Get a summoner's userdata
 DELETE | /summoner/<userid>    | Remove a summoner from a user id
 
 -- Player Page Endpoints --
+GET    | /playlist/<userid>    | Fetch a suitable playlist for the embedded player
+
+-- JSON Data structures --
+Login page:
+{
+    { "status": [insert error code here. INT] }
+    { "userid": [randomly generated unique id for a user. STR] },
+    { "token": [Auth token for authorization from Spotify. STR] }
+}
