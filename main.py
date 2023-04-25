@@ -1,5 +1,7 @@
 import base64
 import json
+import os
+import time
 from urllib.parse import urlencode
 
 import requests
@@ -12,12 +14,14 @@ import userdata
 import string
 import secrets
 
+
+template_dir = os.path.abspath('Front_end')
 SPOTIFY_URL_AUTH = 'https://accounts.spotify.com/authorize/?'
 SPOTIFY_URL_TOKEN = 'https://accounts.spotify.com/api/token/'
 RESPONSE_TYPE = 'code'
 HEADER = 'application/x-www-form-urlencoded'
 REFRESH_TOKEN = ''
-app = Flask(__name__)
+app = Flask(__name__, template_folder=template_dir)
 oauth = OAuth(app)
 user_cache = {}
 # Status codes
@@ -39,7 +43,7 @@ def generate_state_key(size):
     return secrets.token_urlsafe(size)
 
 
-@app.route('/authorize')
+@app.route('/authorize', methods=['GET'])
 def authorize():
     state_key = generate_state_key(15)
     session['state_key'] = state_key
@@ -62,8 +66,6 @@ def get_token(code):
     if post_response.status_code == 200:
         pr = post_response.json()
         return pr['access_token'], pr['refresh_token'], pr['expires_in']
-    else:
-        logging.error('getToken:' + str(post_response.status_code))
     return None
 
 
@@ -78,9 +80,9 @@ def handle_token(response):
 def callback():
     # make sure the response came from Spotify
     if request.args.get('state') != session['state_key']:
-        return render_template('login_page.html', error='State failed.')
+        return render_template('Login Page.html', error='State failed.')
     if request.args.get('error'):
-        return render_template('login_page.html', error='Spotify error.')
+        return render_template('Login Page.html', error='Spotify error.')
     else:
         code = request.args.get('code')
         session.pop('state_key', None)
@@ -92,11 +94,10 @@ def callback():
             session['refresh_token'] = payload[1]
             session['token_expiration'] = time.time() + payload[2]
         else:
-            return render_template('index.html', error='Failed to access token.')
+            return render_template('Login Page.html', error='Failed to access token.')
 
-    current_user = getUserInformation(session)
+    current_user = session['user_id']
     session['user_id'] = current_user['id']
-    logging.info('new user:' + session['user_id'])
 
     return redirect(session['previous_url'])
 
@@ -121,7 +122,7 @@ def store_oauth_token():
     else:
         return jsonify(EC400)
 
-    return render_template('Search Page.html', template_folder='Front_end')
+    return render_template('Search Page.html')
 
 
 @app.patch("/oauth_token")
