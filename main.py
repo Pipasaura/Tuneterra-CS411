@@ -8,6 +8,7 @@ import requests
 from flask import Flask, request, jsonify, render_template, session, make_response, redirect, logging
 from authlib.integrations.flask_client import OAuth
 from numpy.random.mtrand import rand
+from flaskext.mysql import MySQL
 
 import spotify
 import userdata
@@ -186,3 +187,27 @@ def retrieve_summoner_data():
 
 def champStatus():
     return
+
+conn = mysql.connect()
+
+def insertUserID(UserID):
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Users(user_id) VALUES (%s)", (UserID))
+    conn.commit()
+    return True
+
+def insertSumName(SumName, UserID):
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO SummonerNames(sum_name, user_id) VALUES (%s, %s), (SumName, UserID)")
+    conn.commit()
+    return True
+
+def getUserIDFromSumName(SumName):
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM SummonerNames WHERE sum_name = %s", (SumName))
+    return cursor.fetchone()[0]
+
+def getSumNamesFromUserID(UserID):
+    cursor = conn.cursor()
+    cursor.execute("SELECT sum_name FROM SummonerNames WHERE user_id = %s", (UserID))
+    return cursor.fetchall()
