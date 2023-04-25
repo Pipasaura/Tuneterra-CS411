@@ -12,6 +12,20 @@ CREATE TABLE Playlists(
     PRIMARY KEY (playlist_id)
 );
 
+CREATE TABLE Users(
+    user_id VARCHAR(31) NOT NULL,
+    PRIMARY KEY (user_id)
+);
+
+CREATE TABLE SummonerNames(
+    sum_name = VARCHAR(31) NOT NULL, 
+    user_id = VARCHAR(31) NOT NULL,
+    PRIMARY KEY (sum_name),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+
+
 INSERT INTO Playlists(playlist_id, champ_name, playlist1)
     VALUES ('266', 'Aatrox', 'https://open.spotify.com/playlist/0UAl0DYfTlvL0R9HnJHFDX?si=b4af5bf43aee4849');
 
