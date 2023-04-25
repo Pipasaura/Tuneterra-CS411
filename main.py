@@ -14,7 +14,6 @@ import userdata
 import string
 import secrets
 
-
 template_dir = os.path.abspath('Front_end')
 SPOTIFY_URL_AUTH = 'https://accounts.spotify.com/authorize/?'
 SPOTIFY_URL_TOKEN = 'https://accounts.spotify.com/api/token/'
@@ -39,6 +38,14 @@ redirect_uri = 'http://localhost:8888/callback'
 scope = "user-read-playback-state"
 
 
+@app.route('/')
+def home():
+    return render_template('Login Page.html')
+
+
+app.run()
+
+
 def generate_state_key(size):
     return secrets.token_urlsafe(size)
 
@@ -60,11 +67,13 @@ def authorize():
 def get_token(code):
     token_url = 'https://accounts.spotify.com/api/token'
     authorization = "Bearer " + clientSecret
-    headers = {'Authorization': authorization, 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded'}
+    headers = {'Authorization': authorization, 'Accept': 'application/json',
+               'Content-Type': 'application/x-www-form-urlencoded'}
     body = {'code': code, 'redirect_uri': redirect_uri, 'grant_type': 'authorization_code'}
     post_response = requests.post(token_url, headers=headers, data=body)
     if post_response.status_code == 200:
         pr = post_response.json()
+
         return pr['access_token'], pr['refresh_token'], pr['expires_in']
     return None
 
@@ -100,8 +109,6 @@ def callback():
     session['user_id'] = current_user['id']
 
     return redirect(session['previous_url'])
-
-
 
 
 # check API endpoints.txt for descriptions of what these do
@@ -175,10 +182,7 @@ def retrieve_summoner_data():
 
 
 # todo: Verification of summoner name
-#       Define callback
 #       Figure out status codes
-#       Set up champion detection and playlist selection
-#       Figure out how to properly return stuff to frontend
 
 def champStatus():
     return
