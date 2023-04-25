@@ -183,7 +183,7 @@ def retrieve_summoner_data():
 
 def champStatus():
     return
-
+mysql = MySQL()
 conn = mysql.connect()
 
 def insertUserID(UserID):
