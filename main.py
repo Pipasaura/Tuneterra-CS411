@@ -1,10 +1,25 @@
-from flask import Flask, request, jsonify, render_template
+import base64
+import json
+from urllib.parse import urlencode
+
+import requests
+from flask import Flask, request, jsonify, render_template, session, make_response, redirect, logging
+from authlib.integrations.flask_client import OAuth
+from numpy.random.mtrand import rand
+
+import spotify
 import userdata
+import string
+import secrets
 
+SPOTIFY_URL_AUTH = 'https://accounts.spotify.com/authorize/?'
+SPOTIFY_URL_TOKEN = 'https://accounts.spotify.com/api/token/'
+RESPONSE_TYPE = 'code'
+HEADER = 'application/x-www-form-urlencoded'
+REFRESH_TOKEN = ''
 app = Flask(__name__)
-
+oauth = OAuth(app)
 user_cache = {}
-
 # Status codes
 SC100 = {"status": 100}  # Server acknowledges request
 SC200 = {"status": 200}  # Server has completed the request
@@ -12,9 +27,81 @@ SC200 = {"status": 200}  # Server has completed the request
 # Error codes
 EC400 = {"status": 400}  # Bad client request
 
-
 # set this up to pull from the database/cache later on
 # Login page endpoints
+client_id = '4fe47df343244305b0c182bf3256a014'
+clientSecret = '44d7366723e44e0b80661de489b0b521'
+redirect_uri = 'http://localhost:8888/callback'
+scope = "user-read-playback-state"
+
+
+def generate_state_key(size):
+    return secrets.token_urlsafe(size)
+
+
+@app.route('/authorize')
+def authorize():
+    state_key = generate_state_key(15)
+    session['state_key'] = state_key
+
+    authorize_url = 'https://accounts.spotify.com/en/authorize?'
+    params = {'response_type': 'code', 'client_id': client_id,
+              'redirect_uri': redirect_uri, 'scope': scope,
+              'state': state_key}
+    query_params = urlencode(params)
+    response = make_response(redirect(authorize_url + query_params))
+    return response
+
+
+def get_token(code):
+    token_url = 'https://accounts.spotify.com/api/token'
+    authorization = "Bearer " + clientSecret
+    headers = {'Authorization': authorization, 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded'}
+    body = {'code': code, 'redirect_uri': redirect_uri, 'grant_type': 'authorization_code'}
+    post_response = requests.post(token_url, headers=headers, data=body)
+    if post_response.status_code == 200:
+        pr = post_response.json()
+        return pr['access_token'], pr['refresh_token'], pr['expires_in']
+    else:
+        logging.error('getToken:' + str(post_response.status_code))
+    return None
+
+
+def handle_token(response):
+    auth_head = {"Authorization": "Bearer {}".format(response["access_token"])}
+    global REFRESH_TOKEN
+    REFRESH_TOKEN = response["refresh_token"]
+    return [response["access_token"], auth_head, response["scope"], response["expires_in"]]
+
+
+@app.route('/callback')
+def callback():
+    # make sure the response came from Spotify
+    if request.args.get('state') != session['state_key']:
+        return render_template('login_page.html', error='State failed.')
+    if request.args.get('error'):
+        return render_template('login_page.html', error='Spotify error.')
+    else:
+        code = request.args.get('code')
+        session.pop('state_key', None)
+
+        # get access token to make requests on behalf of the user
+        payload = get_token(code)
+        if payload is not None:
+            session['token'] = payload[0]
+            session['refresh_token'] = payload[1]
+            session['token_expiration'] = time.time() + payload[2]
+        else:
+            return render_template('index.html', error='Failed to access token.')
+
+    current_user = getUserInformation(session)
+    session['user_id'] = current_user['id']
+    logging.info('new user:' + session['user_id'])
+
+    return redirect(session['previous_url'])
+
+
+
 
 # check API endpoints.txt for descriptions of what these do
 @app.get("/oauth_token")
@@ -87,6 +174,7 @@ def retrieve_summoner_data():
 
 
 # todo: Verification of summoner name
+#       Define callback
 #       Figure out status codes
 #       Set up champion detection and playlist selection
 #       Figure out how to properly return stuff to frontend
