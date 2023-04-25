@@ -121,3 +121,25 @@ def checkInGameStatus(region, sum_name):
         return False
     return True
 
+
+def insertUserID(UserID):
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Users(user_id) VALUES (%s)", (UserID))
+    conn.commit()
+    return True
+
+def insertSumName(SumName, UserID):
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO SummonerNames(sum_name, user_id) VALUES (%s, %s), (SumName, UserID)")
+    conn.commit()
+    return True
+
+def getUserIDFromSumName(SumName):
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM SummonerNames WHERE sum_name = %s", (SumName))
+    return cursor.fetchone()[0]
+
+def getSumNamesFromUserID(UserID):
+    cursor = conn.cursor()
+    cursor.execute("SELECT sum_name FROM SummonerNames WHERE user_id = %s", (UserID))
+    return cursor.fetchall()
