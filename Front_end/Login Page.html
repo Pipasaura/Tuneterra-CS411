@@ -40,21 +40,25 @@
   <body>
     <h1>TuneTerra: The Utimate <br />game music assistant</h1>
     <button onclick="authorize()">Authorize with Spotify</button>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
       function authorize() {
-        const client_id = "4fe47df343244305b0c182bf3256a014";
-        const redirect_uri = "http://localhost:8888/callback";
-        const scope = "user-read-private user-read-email";
-        const state = generateRandomString(16);
-
-        const url = `https://accounts.spotify.com/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(
-          redirect_uri
-        )}&scope=${encodeURIComponent(scope)}&state=${state}`;
-
-        window.location = url;
+        $.ajax({
+          url: "/authorize",
+          type: "GET",
+          success: function (response) {
+            // Handle successful response
+            console.log(response);
+          },
+          error: function (xhr, status, error) {
+            // Handle error
+            console.log(error);
+          },
+        });
       }
+    </script>
 
+    <script>
       function generateRandomString(length) {
         let result = "";
         const characters =

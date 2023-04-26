@@ -8,6 +8,7 @@ import requests
 from flask import Flask, request, jsonify, render_template, session, make_response, redirect, logging
 from authlib.integrations.flask_client import OAuth
 from numpy.random.mtrand import rand
+from flask_cors import CORS
 
 import spotify
 import userdata
@@ -21,6 +22,10 @@ RESPONSE_TYPE = 'code'
 HEADER = 'application/x-www-form-urlencoded'
 REFRESH_TOKEN = ''
 app = Flask(__name__, template_folder=template_dir)
+CORS(app)
+
+
+
 oauth = OAuth(app)
 user_cache = {}
 # Status codes
@@ -34,8 +39,11 @@ EC400 = {"status": 400}  # Bad client request
 # Login page endpoints
 client_id = '4fe47df343244305b0c182bf3256a014'
 clientSecret = '44d7366723e44e0b80661de489b0b521'
-redirect_uri = 'http://localhost:8888/callback'
+redirect_uri = 'http://127.0.0.1:5000/callback'
 scope = "user-read-playback-state"
+
+
+
 
 
 @app.route('/')
@@ -43,7 +51,8 @@ def home():
     return render_template('Login Page.html')
 
 
-app.run()
+
+app.config['SERVER_NAME'] = '127.0.0.1:5000'
 
 
 def generate_state_key(size):
@@ -55,17 +64,28 @@ def authorize():
     state_key = generate_state_key(15)
     session['state_key'] = state_key
 
-    authorize_url = 'https://accounts.spotify.com/en/authorize?'
+    authorize_url = 'https://accounts.spotify.com/en/authorize/?'
     params = {'response_type': 'code', 'client_id': client_id,
-              'redirect_uri': redirect_uri, 'scope': scope,
+              'redirect_uri': redirect_uri, 'scope': scope, 
               'state': state_key}
     query_params = urlencode(params)
-    response = make_response(redirect(authorize_url + query_params))
+
+    # Make a request to the Spotify authorization server using the requests library
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    r = requests.get(authorize_url + query_params, headers=headers)
+
+    # Create a new response object using Flask's make_response function
+    response = make_response(r.content)
+    response.status_code = r.status_code
+
+    # Set the Access-Control-Allow-Origin header to allow cross-origin requests
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 def get_token(code):
-    token_url = 'https://accounts.spotify.com/api/token'
+    token_url = 'https://accounts.spotify.com/api/token/'
     authorization = "Bearer " + clientSecret
     headers = {'Authorization': authorization, 'Accept': 'application/json',
                'Content-Type': 'application/x-www-form-urlencoded'}
@@ -110,6 +130,8 @@ def callback():
 
     return redirect(session['previous_url'])
 
+app.secret_key=generate_state_key(12)
+app.run(debug=True)
 
 # check API endpoints.txt for descriptions of what these do
 @app.get("/oauth_token")
@@ -186,3 +208,5 @@ def retrieve_summoner_data():
 
 def champStatus():
     return
+
+
