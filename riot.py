@@ -3,20 +3,21 @@ from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
 import flask_login
 from riotwatcher import LolWatcher
+from secrets import databasePassword, secretAppKey, riotAPI
 
 mysql = MySQL()
 app = Flask(__name__)
-app.secret_key = ''  # Change this!
+app.secret_key = secretAppKey()
 
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = ''
+app.config['MYSQL_DATABASE_PASSWORD'] = databasePassword()
 app.config['MYSQL_DATABASE_DB'] = 'TuneTerra'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
 conn = mysql.connect()
 
-api_key = ''
+api_key = riotAPI()
 
 watcher = LolWatcher(api_key, default_status_v4=True)
 
@@ -33,8 +34,8 @@ def getLiveChampId(region, match_info, sum_id):
 def getPlaylists(region, sum_name):
     champ_id = getLiveChampId(region, sum_name)
     cursor = conn.cursor()
-    cursor.execute("SELECT playlist1, playlist2 FROM Champions WHERE champ_id = %s", (champ_id))
-    return cursor.fetchall()
+    cursor.execute("SELECT playlist1 FROM Champions WHERE champ_id = %s", (champ_id))
+    return cursor.fetchone()[0]
 
 def getMatchHistory(region, puuid):
     history = watcher.match.matchlist_by_puuid(region, puuid, count=3) # Returns the three most recent match ids
@@ -106,7 +107,7 @@ def getPlaylist(region, sum_name):
     keyword = getPlaylistID(region, sum_name)
     cursor = conn.cursor()
     cursor.execute("SELECT playlist1 FROM Playlists WHERE playlist_id = %s", (keyword))
-    return cursor.fetchall()
+    return cursor.fetchone()[0]
 
 def checkInGameStatus(region, sum_name):
     try:

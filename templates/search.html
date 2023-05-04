@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            TuneTerra
+        </title>
+        <h1>Please enter your Summoner Name and Region Code!</h1><br />
+        <h2>Please ensure that you have Spotify open on at least one device or web page.</h2><br />
+    </head>
+    <form method="post" action="{{ url_for('search') }}">
+        <label for="sum_name">Summoner Name:</label>
+        <input type="text" name="sum_name" /><br />
+        <label for="region">Region Code (na1, euw1, etc):</label>
+        <input type="text" name="region" /><br />
+
+        <input type="submit">
+    </form>

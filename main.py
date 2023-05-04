@@ -1,4 +1,0 @@
-
-
-def champStatus():
-    return

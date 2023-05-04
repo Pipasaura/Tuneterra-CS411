@@ -6,11 +6,17 @@ CREATE TABLE Playlists(
     playlist_id VARCHAR(31) NOT NULL,
     champ_name VARCHAR(31),
     playlist1 VARCHAR(255),
-    playlist2 VARCHAR(255),
     keyword1 VARCHAR(31),
     keyword2 VARCHAR(31),
     PRIMARY KEY (playlist_id)
 );
+
+CREATE TABLE Users (
+    user_id int4  AUTO_INCREMENT,
+    email varchar(255) UNIQUE,
+    password varchar(255) NOT NULL,
+    
+  CONSTRAINT users_pk PRIMARY KEY (user_id));
 
 INSERT INTO Playlists(playlist_id, champ_name, playlist1)
     VALUES ('266', 'Aatrox', 'https://open.spotify.com/playlist/0UAl0DYfTlvL0R9HnJHFDX?si=b4af5bf43aee4849');
